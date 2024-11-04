@@ -20,7 +20,7 @@
 // Modified by: Gábor Major (c00271548@setu.ie)
 // Last modify on: 2024-09-30
 // Description:
-// A simple barrier implemented using mutex and semaphore
+// A simple barrier implemented using semaphores
 // Issues: None
 //--------------------------------------------
 
@@ -34,7 +34,6 @@ import (
 	"time"
 )
 
-// Place a barrier in this function --use Mutex's and Semaphores
 func doStuff(goNum int, wg *sync.WaitGroup, sem *semaphore.Weighted, wg2 *sync.WaitGroup, totalRoutines int64) bool {
 	time.Sleep(time.Second)
 	fmt.Println("Part A", goNum)

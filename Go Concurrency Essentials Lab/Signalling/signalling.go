@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-//Global variables shared between functions --A BAD IDEA
-
 func main() {
 	var wg sync.WaitGroup
 	barrier := make(chan bool)
