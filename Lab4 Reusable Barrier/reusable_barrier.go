@@ -19,7 +19,7 @@
 // Created on 30/9/2024
 // Modified by: Gábor Major (c00271548@setu.ie)
 // Description:
-// A simple barrier implemented using mutex and unbuffered channel
+// A reusable barrier implemented using mutex and unbuffered channels
 // Issues:
 // None I hope
 //--------------------------------------------
@@ -33,8 +33,7 @@ import (
 	"time"
 )
 
-// Place a barrier in this function --use Mutex's and Semaphores
-func doStuff(goNum int, arrived *atomic.Int64, max int, wg *sync.WaitGroup, theChan chan bool, theLock *sync.Mutex) bool {
+func doStuff(goNum int, arrived *atomic.Int64, max int, wg *sync.WaitGroup, channel1 chan bool, channel2 chan bool, theLock *sync.Mutex) bool {
 	for range 3 {
 		time.Sleep(time.Second)
 		fmt.Println("Part A", goNum)
@@ -44,11 +43,11 @@ func doStuff(goNum int, arrived *atomic.Int64, max int, wg *sync.WaitGroup, theC
 		if arrived.Load() == int64(max) { //last to arrive -signal others to go
 			theLock.Unlock()
 			for range max - 1 { // run for all the other routines to free them up
-				theChan <- true
+				channel1 <- true
 			}
 		} else { //not all here yet we wait until signal
 			theLock.Unlock()
-			<-theChan
+			<-channel1
 		} //end of if-else
 		fmt.Println("Part B", goNum)
 		// wait here until everyone has completed part B
@@ -57,11 +56,11 @@ func doStuff(goNum int, arrived *atomic.Int64, max int, wg *sync.WaitGroup, theC
 		if arrived.Load() == 0 { // last routine arrives here
 			theLock.Unlock()
 			for range max - 1 { // run for all the other routines to free them up
-				theChan <- true
+				channel2 <- true
 			}
 		} else {
 			theLock.Unlock()
-			<-theChan // wait here for last routine
+			<-channel2 // wait here for last routine
 		}
 		fmt.Println("Part C", goNum)
 	}
@@ -76,9 +75,10 @@ func main() {
 	wg.Add(totalRoutines)
 	//we will need some of these
 	var theLock sync.Mutex
-	theChan := make(chan bool)     //use unbuffered channel in place of semaphore
+	channel1 := make(chan bool) //use unbuffered channel in place of semaphore
+	channel2 := make(chan bool)
 	for i := range totalRoutines { //create the go Routines here
-		go doStuff(i, &arrived, totalRoutines, &wg, theChan, &theLock)
+		go doStuff(i, &arrived, totalRoutines, &wg, channel1, channel2, &theLock)
 	}
 	wg.Wait() //wait for everyone to finish before exiting
 } //end-main

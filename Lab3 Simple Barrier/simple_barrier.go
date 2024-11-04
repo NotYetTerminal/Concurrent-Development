@@ -19,6 +19,8 @@
 // Created on 30/9/2024
 // Modified by: Gábor Major (c00271548@setu.ie)
 // Last modify on: 2024-09-30
+// Description:
+// A simple barrier implemented using mutex and semaphore
 // Issues: None
 //--------------------------------------------
 
